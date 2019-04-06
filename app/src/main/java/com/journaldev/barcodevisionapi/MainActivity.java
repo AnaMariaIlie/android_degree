@@ -17,25 +17,79 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.journaldev.barcodevisionapi.models.Drug;
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import cz.msebera.android.httpclient.Header;
+
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public static TextView tvresult;
-    private  Button btn;
+    private  Button scan_button;
+    private  Button rest_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        tvresult = (TextView) findViewById(R.id.tvresult);
+        tvresult =  findViewById(R.id.tvresult);
 
-        btn = (Button) findViewById(R.id.btn);
-
-        btn.setOnClickListener(new View.OnClickListener() {
+        scan_button =  findViewById(R.id.btn);
+        scan_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, ScanActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        rest_button = findViewById(R.id.rest_call);
+        rest_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                BootRestClient.simplyGET( new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        // If the response is JSONObject instead of expected JSONArray
+                        System.out.println(statusCode + "********************");
+                    }
+
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONArray timeline) {
+                        // Pull out the first event on the public timeline
+                        JSONObject firstEvent = null;
+                        try {
+                            firstEvent = (JSONObject) timeline.get(0);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        String tweetText = statusCode + "";
+                        try {
+                            tweetText = firstEvent.getString("id");
+                        } catch (JSONException e) {
+                           e.printStackTrace();
+                       }
+
+                        ObjectMapper m = new ObjectMapper();
+                        try {
+                            Drug drug = m.readValue(firstEvent.toString(), Drug.class);
+                            System.out.println(drug.toString());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                    }
+                });
             }
         });
 
@@ -60,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemIconTintList(null);
+
 
     }
 
