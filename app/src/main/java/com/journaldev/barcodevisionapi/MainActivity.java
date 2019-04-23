@@ -11,21 +11,27 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.journaldev.barcodevisionapi.Util.Constants;
 import com.journaldev.barcodevisionapi.models.Drug;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.ConnectException;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -33,21 +39,58 @@ import cz.msebera.android.httpclient.Header;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public static TextView tvresult;
-    private  Button scan_button;
-    private  Button rest_button;
+    public static TextView tvresult1;
+    public static TextView tvresult2;
+    private Button scan_button;
+    private Button scan_button1;
+    private Button scan_button2;
+    private LinearLayout first_layout;
+    private LinearLayout second_layout;
+    private LinearLayout third_layout;
+    private Button rest_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
-        tvresult =  findViewById(R.id.tvresult);
+        tvresult = findViewById(R.id.tvresult);
+        tvresult1 = findViewById(R.id.tvresult1);
+        tvresult2 = findViewById(R.id.tvresult2);
 
-        scan_button =  findViewById(R.id.btn);
+        first_layout = findViewById(R.id.first_layout);
+        second_layout = findViewById(R.id.second_layout);
+        third_layout = findViewById(R.id.third_layout);
+
+        scan_button = findViewById(R.id.btn);
         scan_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, ScanActivity.class);
+                intent.putExtra(Constants.TEXT_VIEW_RESULT, "tvresult");
+                startActivity(intent);
+            }
+        });
+
+        scan_button1 = findViewById(R.id.btn1);
+        scan_button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                second_layout.setAlpha(1);
+                Intent intent = new Intent(MainActivity.this, ScanActivity.class);
+                intent.putExtra(Constants.TEXT_VIEW_RESULT, "tvresult1");
+                startActivity(intent);
+            }
+        });
+
+        scan_button2 = findViewById(R.id.btn2);
+        scan_button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                third_layout.setAlpha(1);
+                Intent intent = new Intent(MainActivity.this, ScanActivity.class);
+                intent.putExtra(Constants.TEXT_VIEW_RESULT, "tvresult2");
                 startActivity(intent);
             }
         });
@@ -56,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         rest_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BootRestClient.simplyGET( new JsonHttpResponseHandler() {
+                /*BootRestClient.simplyGET( new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         // If the response is JSONObject instead of expected JSONArray
@@ -89,9 +132,53 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
                     }
+                });*/
+
+
+                RequestParams requestParams = new RequestParams();
+                requestParams.put("first", tvresult.getText());
+                requestParams.put("second", tvresult1.getText());
+                requestParams.put("third", tvresult2.getText());
+
+
+                BootRestClient.post(requestParams, new JsonHttpResponseHandler() {
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                        Toast.makeText(getApplicationContext(), "Please check your network connection",
+                                Toast.LENGTH_LONG).show();
+                    }
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONArray timeline) {
+                        System.out.println(statusCode + "********************");
+
+                        // Pull out the first event on the public timeline
+                        JSONObject firstEvent = null;
+                        try {
+                            firstEvent = (JSONObject) timeline.get(0);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        String tweetText = statusCode + "";
+                        try {
+                            tweetText = firstEvent.getString("id");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        /*ObjectMapper m = new ObjectMapper();
+                        try {
+                            Drug drug = m.readValue(firstEvent.toString(), Drug.class);
+                            System.out.println(drug.toString());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }*/
+                    }
                 });
+
             }
         });
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
