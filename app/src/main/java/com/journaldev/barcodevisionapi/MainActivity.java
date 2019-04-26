@@ -1,6 +1,7 @@
 package com.journaldev.barcodevisionapi;
 
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -11,7 +12,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +22,7 @@ import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.journaldev.barcodevisionapi.Util.Constants;
-import com.journaldev.barcodevisionapi.models.Drug;
+import com.journaldev.barcodevisionapi.models.Interaction;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
@@ -32,6 +32,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.util.ArrayList;
+import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -99,41 +101,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         rest_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*BootRestClient.simplyGET( new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        // If the response is JSONObject instead of expected JSONArray
-                        System.out.println(statusCode + "********************");
-                    }
-
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONArray timeline) {
-                        // Pull out the first event on the public timeline
-                        JSONObject firstEvent = null;
-                        try {
-                            firstEvent = (JSONObject) timeline.get(0);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        String tweetText = statusCode + "";
-                        try {
-                            tweetText = firstEvent.getString("id");
-                        } catch (JSONException e) {
-                           e.printStackTrace();
-                       }
-
-                        ObjectMapper m = new ObjectMapper();
-                        try {
-                            Drug drug = m.readValue(firstEvent.toString(), Drug.class);
-                            System.out.println(drug.toString());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-
-                    }
-                });*/
-
 
                 RequestParams requestParams = new RequestParams();
                 requestParams.put("first", tvresult.getText());
@@ -152,27 +119,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onSuccess(int statusCode, Header[] headers, JSONArray timeline) {
                         System.out.println(statusCode + "********************");
 
-                        // Pull out the first event on the public timeline
-                        JSONObject firstEvent = null;
-                        try {
-                            firstEvent = (JSONObject) timeline.get(0);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        String tweetText = statusCode + "";
-                        try {
-                            tweetText = firstEvent.getString("id");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                        ArrayList<Interaction> interactions = processObjects(timeline);
+                        for (Interaction i: interactions) {
+                            System.out.println(i);
                         }
 
-                        /*ObjectMapper m = new ObjectMapper();
-                        try {
-                            Drug drug = m.readValue(firstEvent.toString(), Drug.class);
-                            System.out.println(drug.toString());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }*/
+                        Intent intent = new Intent(getApplicationContext(), ScrollActivity.class);
+
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelableArrayList(Constants.INTERACTIONS_ARRAY, interactions);
+                        intent.putExtras(bundle);
+                        startActivity(intent);
+
                     }
                 });
 
@@ -202,6 +160,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemIconTintList(null);
 
+
+    }
+
+    public ArrayList<Interaction> processObjects(JSONArray timeline) {
+
+        ArrayList<Interaction> res = new ArrayList<>();
+
+        int i;
+        for (i = 0; i < timeline.length(); i++) {
+            JSONObject interactionObj = null;
+            try {
+                interactionObj = (JSONObject) timeline.get(i);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+            ObjectMapper m = new ObjectMapper();
+            try {
+                Interaction interaction = m.readValue(interactionObj.toString(), Interaction.class);
+                res.add(interaction);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+
+        return res;
 
     }
 

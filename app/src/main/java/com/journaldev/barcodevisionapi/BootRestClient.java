@@ -7,7 +7,8 @@ import com.loopj.android.http.RequestParams;
 import java.net.ConnectException;
 
 public class BootRestClient {
-    private static final String BASE_URL = "http://192.168.0.100:8080/interactionList";//"http://192.168.43.163:8080/interactionList";
+    //"http://192.168.0.100:8080/interactionList";
+    private static final String BASE_URL = "http://192.168.43.163:8080/interactionList";
 
     private static AsyncHttpClient client = new AsyncHttpClient();
     static {
