@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                        Toast.makeText(getApplicationContext(), "Please check your network connection",
+                        Toast.makeText(getApplicationContext(), "An error occurred.",
                                 Toast.LENGTH_LONG).show();
                     }
                     @Override
