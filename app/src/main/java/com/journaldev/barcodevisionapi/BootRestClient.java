@@ -22,6 +22,7 @@ public class BootRestClient {
     public static void post(RequestParams params, AsyncHttpResponseHandler responseHandler) {
         client.post(BASE_URL, params, responseHandler);
 
+
     }
 
     public static void simplyGET(AsyncHttpResponseHandler responseHandler) {

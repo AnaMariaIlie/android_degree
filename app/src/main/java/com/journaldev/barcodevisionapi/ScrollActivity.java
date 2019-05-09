@@ -1,6 +1,7 @@
 package com.journaldev.barcodevisionapi;
 
 import android.animation.ObjectAnimator;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -10,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
@@ -35,7 +37,9 @@ public class ScrollActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         ArrayList<Interaction> interactions = intent.getParcelableArrayListExtra(Constants.INTERACTIONS_ARRAY);
+        ArrayList<String> pairs = intent.getStringArrayListExtra(Constants.INTERACTIONS_PAIR);
 
+        int index = 0;
         for (Interaction i : interactions) {
 
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -49,14 +53,15 @@ public class ScrollActivity extends AppCompatActivity {
             ll.setAlpha(0.8f);
 
 
-            constructButton(ll, i.getFirstIngredientName().toUpperCase());
-            constructButton(ll, i.getSecondIngredientName().toUpperCase());
-            constructButton(ll, i.getDescription());
+            constructButton(ll, i.getFirstIngredientName().toUpperCase(), true, pairs.get(index));
+            constructButton(ll, i.getSecondIngredientName().toUpperCase(), true, pairs.get(index + 1));
+            constructButton(ll, i.getDescription(), false, "");
             constructProgressBar(ll, i.getToxicityLevel());
 
 
             ll.setLayoutParams(layoutParams);
             scroll_layout.addView(ll);
+            index++;
         }
     }
 
@@ -112,7 +117,7 @@ public class ScrollActivity extends AppCompatActivity {
     }
 
 
-    private void constructButton(LinearLayout ll, String name) {
+    private void constructButton(LinearLayout ll, final String name, boolean isIngredient, final String drug) {
         Button item = new Button(this);
         LinearLayout.LayoutParams textParams = null;
         item.setAllCaps(false);
@@ -120,6 +125,19 @@ public class ScrollActivity extends AppCompatActivity {
         item.setTextColor(Color.parseColor("#303030"));
         item.setGravity(Gravity.CENTER);
         item.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+
+        if (isIngredient) {
+            item.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new AlertDialog.Builder(ScrollActivity.this)
+                            .setTitle(drug)
+                            .setMessage("The drug that contains " + name)
+                            .setNegativeButton(android.R.string.no, null)
+                            .show();
+                }
+            });
+        }
 
 
         int height = (int) (25 * getApplicationContext().getResources().getDisplayMetrics().density);

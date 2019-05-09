@@ -1,8 +1,10 @@
 <resources>
-    <string name="app_name">My medical app</string>
+    <string name="app_name">Drugs checker</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
     <string name="scan">Scan</string>
+    <string name="hospitals">Hospitals</string>
+    <string name="pharmacies">Pharmacies</string>
 </resources>

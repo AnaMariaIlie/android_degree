@@ -1,6 +1,7 @@
 package com.journaldev.barcodevisionapi;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -12,6 +13,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +23,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.MapType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.journaldev.barcodevisionapi.Util.Constants;
 import com.journaldev.barcodevisionapi.models.Interaction;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -31,9 +35,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.ConnectException;
+import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -102,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View view) {
 
-                RequestParams requestParams = new RequestParams();
+                final RequestParams requestParams = new RequestParams();
                 requestParams.put("first", tvresult.getText());
                 requestParams.put("second", tvresult1.getText());
                 requestParams.put("third", tvresult2.getText());
@@ -115,9 +120,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         Toast.makeText(getApplicationContext(), "An error occurred.",
                                 Toast.LENGTH_LONG).show();
                     }
+
+                    @Override
+                    public void onSuccess(int g, Header[] fd, JSONObject f) {
+                        ArrayList<Interaction> res = new ArrayList<>();
+                        ArrayList<String> pairs = new ArrayList<>();
+
+
+                        ObjectMapper mapper = new ObjectMapper();
+                        TypeFactory typeFactory = mapper.getTypeFactory();
+                        MapType mapType = typeFactory.constructMapType(LinkedHashMap.class, String.class,  Interaction.class);
+                        try {
+                            LinkedHashMap<String, Interaction> map = mapper.readValue(new StringReader(f.toString()), mapType);
+                            for (Map.Entry<String, Interaction> entry : map.entrySet()) {
+                                String string = entry.getKey();
+                                String[] arr = string.split("###");
+                                pairs.add(arr[0]);
+                                pairs.add(arr[1]);
+                                res.add(entry.getValue());
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        Intent intent = new Intent(getApplicationContext(), ScrollActivity.class);
+
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelableArrayList(Constants.INTERACTIONS_ARRAY, res);
+                        bundle.putStringArrayList(Constants.INTERACTIONS_PAIR, pairs);
+                        intent.putExtras(bundle);
+                        startActivity(intent);
+
+
+                    }
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONArray timeline) {
-                        System.out.println(statusCode + "********************");
 
                         ArrayList<Interaction> interactions = processObjects(timeline);
                         for (Interaction i: interactions) {
@@ -224,7 +261,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            // Handle the camera action
+            Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_slideshow) {
@@ -232,7 +270,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_manage) {
 
         } else if (id == R.id.nav_share) {
-
+            String url = "http://www.twitter.com/intent/tweet?url=Tweet&text=DrugsChecker";
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse(url));
+            startActivity(i);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
