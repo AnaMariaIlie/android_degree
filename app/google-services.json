@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "610180647117",
+    "firebase_url": "https://medical-app-1556533672826.firebaseio.com",
+    "project_id": "medical-app-1556533672826",
+    "storage_bucket": "medical-app-1556533672826.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:610180647117:android:03463fbc882f834c",
+        "android_client_info": {
+          "package_name": "com.journaldev.barcodevisionapi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "610180647117-3u88ah9tpltu858ncf0tr29ci7ortl67.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBa4ZdeJQJ-Q7gq1jG_L-Dx8W9tVqDIGT8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "610180647117-3u88ah9tpltu858ncf0tr29ci7ortl67.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

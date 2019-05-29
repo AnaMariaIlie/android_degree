@@ -2,7 +2,6 @@ package com.journaldev.barcodevisionapi;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -13,7 +12,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,6 +23,7 @@ import android.widget.Toast;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.google.firebase.auth.FirebaseAuth;
 import com.journaldev.barcodevisionapi.Util.Constants;
 import com.journaldev.barcodevisionapi.models.Interaction;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -108,6 +107,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onClick(View view) {
 
                 final RequestParams requestParams = new RequestParams();
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                if (auth.getCurrentUser() != null) {
+                    requestParams.put("userId", auth.getCurrentUser().getUid());
+                }
                 requestParams.put("first", tvresult.getText());
                 requestParams.put("second", tvresult1.getText());
                 requestParams.put("third", tvresult2.getText());
@@ -243,13 +246,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
+
+        MenuItem item = menu.getItem(0);
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() != null) {
+            item.setTitle(item.getTitle().toString() + " " + auth.getCurrentUser().getEmail());
+        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+
         if (id == R.id.action_settings) {
+            startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);

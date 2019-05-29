@@ -56,7 +56,6 @@ public class ScanActivity extends AppCompatActivity implements ZXingScannerView.
 
         onBackPressed();
 
-        // If you would like to resume scanning, call this method below:
-        //mScannerView.resumeCameraPreview(this);
+        // resume scanning :mScannerView.resumeCameraPreview(this);
     }
 }

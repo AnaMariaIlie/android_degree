@@ -3,7 +3,6 @@ package com.journaldev.barcodevisionapi;
 import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
@@ -12,12 +11,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.View;
-import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.journaldev.barcodevisionapi.Util.Constants;
@@ -72,7 +69,6 @@ public class ScrollActivity extends AppCompatActivity {
 
         layoutParams.setMargins(40, 0, 40, 0);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-          //  item.setProgress(80);
 
             ObjectAnimator animation = null;
             switch (toxicityLevel) {

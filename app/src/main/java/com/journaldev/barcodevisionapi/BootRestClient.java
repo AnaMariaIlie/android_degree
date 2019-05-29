@@ -8,7 +8,7 @@ import java.net.ConnectException;
 
 public class BootRestClient {
     //"http://192.168.0.100:8080/interactionList";
-    private static final String BASE_URL = "http://192.168.43.163:8080/interactionList";
+    private static final String BASE_URL = "http://192.168.0.101:8080/interactionList";// "http://192.168.43.163:8080/interactionList";
 
     private static AsyncHttpClient client = new AsyncHttpClient();
     static {
